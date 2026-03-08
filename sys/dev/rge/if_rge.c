@@ -75,9 +75,6 @@
 static int		rge_attach(device_t);
 static int		rge_detach(device_t);
 
-#if 0
-int		rge_activate(struct device *, int);
-#endif
 static void	rge_intr_msi(void *);
 static int	rge_ioctl(struct ifnet *, u_long, caddr_t);
 static int	rge_transmit_if(if_t, struct mbuf *);
@@ -103,12 +100,6 @@ static void	rge_tx_task(void *, int);
 static void	rge_txq_flush_mbufs(struct rge_softc *sc);
 static void	rge_tick(void *);
 static void	rge_link_state(struct rge_softc *);
-#if 0
-#ifndef SMALL_KERNEL
-int		rge_wol(struct ifnet *, int);
-void		rge_wol_power(struct rge_softc *);
-#endif
-#endif
 
 struct rge_matchid {
 	uint16_t vendor;
@@ -404,7 +395,6 @@ rge_attach(device_t dev)
 		goto fail;
 	}
 
-
 	/* Attach sysctl nodes */
 	rge_sysctl_attach(sc);
 
@@ -447,22 +437,6 @@ rge_attach(device_t dev)
 	rge_config_imtype(sc, RGE_IMTYPE_SIM);
 
 	/* TODO: disable ASPM/ECPM? */
-
-#if 0
-	/*
-	 * PCI Express check.
-	 */
-	if (pci_get_capability(pa->pa_pc, pa->pa_tag, PCI_CAP_PCIEXPRESS,
-	    &offset, NULL)) {
-		/* Disable PCIe ASPM and ECPM. */
-		reg = pci_conf_read(pa->pa_pc, pa->pa_tag,
-		    offset + PCI_PCIE_LCSR);
-		reg &= ~(PCI_PCIE_LCSR_ASPM_L0S | PCI_PCIE_LCSR_ASPM_L1 |
-		    PCI_PCIE_LCSR_ECPM);
-		pci_conf_write(pa->pa_pc, pa->pa_tag, offset + PCI_PCIE_LCSR,
-		    reg);
-	}
-#endif
 
 	RGE_LOCK(sc);
 	if (rge_chipinit(sc)) {
@@ -653,26 +627,6 @@ rge_detach(device_t dev)
 
 	return (0);
 }
-
-#if 0
-
-int
-rge_activate(struct device *self, int act)
-{
-#ifndef SMALL_KERNEL
-	struct rge_softc *sc = (struct rge_softc *)self;
-#endif
-
-	switch (act) {
-	case DVACT_POWERDOWN:
-#ifndef SMALL_KERNEL
-		rge_wol_power(sc);
-#endif
-		break;
-	}
-	return (0);
-}
-#endif
 
 static void
 rge_intr_msi(void *arg)
@@ -1742,7 +1696,6 @@ error:
 
 	return (error);
 }
-
 
 /**
  * @brief Free the TX/RX DMA buffers and mbufs.
