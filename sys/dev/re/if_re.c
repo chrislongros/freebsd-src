@@ -3161,8 +3161,7 @@ re_init_locked(struct rl_softc *sc)
 		cfg |= RL_CPLUSCMD_VLANSTRIP;
 	if ((sc->rl_flags & RL_FLAG_MACSTAT) != 0) {
 		cfg |= RL_CPLUSCMD_MACSTAT_DIS;
-		/* XXX magic. */
-		cfg |= 0x0001;
+		cfg |= RL_CPLUSCMD_TXENB;
 	} else
 		cfg |= RL_CPLUSCMD_RXENB | RL_CPLUSCMD_TXENB;
 	CSR_WRITE_2(sc, RL_CPLUS_CMD, cfg);
