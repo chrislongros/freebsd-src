@@ -1903,7 +1903,7 @@ tunnel_status(if_ctx *ctx)
 static void
 Perrorc(const char *cmd, int error)
 {
-	switch (errno) {
+	switch (error) {
 
 	case ENXIO:
 		errx(1, "%s: no such interface", cmd);
