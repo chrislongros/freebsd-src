@@ -152,6 +152,12 @@ Maximum number of RX packets to process per interrupt.
 The default value is 16.
 Increasing this value may improve throughput on high-speed links at the
 cost of increased interrupt latency.
+.It Va dev.rge.%d.int_rx_mod
+Interrupt moderation timer value.
+The default value is 0x2600.
+Setting this to 0 disables interrupt moderation, which reduces latency
+but increases CPU usage.
+Higher values reduce interrupt rate at the cost of increased latency.
 .El
 .Sh DIAGNOSTICS
 .Bl -diag

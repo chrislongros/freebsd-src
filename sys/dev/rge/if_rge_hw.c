@@ -1924,7 +1924,7 @@ rge_disable_sim_im(struct rge_softc *sc)
 static void
 rge_setup_sim_im(struct rge_softc *sc)
 {
-	RGE_WRITE_4(sc, RGE_TIMERINT0, 0x2600);
+	RGE_WRITE_4(sc, RGE_TIMERINT0, sc->sc_int_rx_mod);
 	RGE_WRITE_4(sc, RGE_TIMERCNT, 1);
 	sc->rge_timerintr = 1;
 }

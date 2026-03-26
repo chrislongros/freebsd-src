@@ -237,6 +237,11 @@ rge_sysctl_attach(struct rge_softc *sc)
 	    "rx_process_limit", CTLFLAG_RW, &sc->sc_rx_process_limit, 0,
 	    "max number of RX packets to process per interrupt");
 
+	sc->sc_int_rx_mod = 0x2600;
+	SYSCTL_ADD_INT(ctx, SYSCTL_CHILDREN(tree), OID_AUTO,
+	    "int_rx_mod", CTLFLAG_RW, &sc->sc_int_rx_mod, 0,
+	    "interrupt moderation timer value (0 to disable)");
+
 	/* Stats */
 	rge_sysctl_drv_stats_attach(sc);
 	rge_sysctl_mac_stats_attach(sc);
