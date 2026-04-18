@@ -29,6 +29,7 @@
 
 #include <sys/param.h>
 #include <sys/endian.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 
 #include <err.h>
@@ -166,8 +167,7 @@ rtlbt_fw_read(struct rtlbt_firmware *fw, const char *fwname)
 {
 	int fd;
 	struct stat sb;
-	unsigned char *buf;
-	ssize_t r;
+	unsigned char *buf, *map;
 
 	fd = open(fwname, O_RDONLY);
 	if (fd < 0) {
@@ -181,32 +181,29 @@ rtlbt_fw_read(struct rtlbt_firmware *fw, const char *fwname)
 		return (0);
 	}
 
-	buf = calloc(1, sb.st_size);
+	if (sb.st_size <= 0) {
+		rtlbt_err("%s: empty firmware file", fwname);
+		close(fd);
+		return (0);
+	}
+
+	buf = malloc(sb.st_size);
 	if (buf == NULL) {
-		warn("%s: calloc", __func__);
+		warn("%s: malloc", __func__);
 		close(fd);
 		return (0);
 	}
 
-	/* XXX handle partial reads */
-	r = read(fd, buf, sb.st_size);
-	if (r < 0) {
-		warn("%s: read", __func__);
+	map = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (map == MAP_FAILED) {
+		warn("%s: mmap", __func__);
 		free(buf);
 		close(fd);
 		return (0);
 	}
 
-	if (r != sb.st_size) {
-		rtlbt_err("read len %d != file size %d",
-		    (int) r,
-		    (int) sb.st_size);
-		free(buf);
-		close(fd);
-		return (0);
-	}
-
-	/* We have everything, so! */
+	memcpy(buf, map, sb.st_size);
+	munmap(map, sb.st_size);
 
 	memset(fw, 0, sizeof(*fw));
 
